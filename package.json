@@ -1,0 +1,60 @@
+{
+  "name": "filament-goto-view",
+  "displayName": "Filament Goto View",
+  "description": "Shortcut to open Filament views and validate file paths directly from your PHP code.",
+  "version": "0.0.1",
+  "publisher": "YourNameOrOrganization",
+  "engines": {
+    "vscode": "^1.110.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "laravel",
+    "filament",
+    "php",
+    "blade",
+    "goto"
+  ],
+  "activationEvents": [
+    "onLanguage:php"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Filament Goto View",
+      "properties": {
+        "filament-goto-view.viewPath": {
+          "type": "string",
+          "default": "resources/views",
+          "description": "Relative path to the Laravel views folder."
+        },
+        "filament-goto-view.extension": {
+          "type": "string",
+          "default": ".blade.php",
+          "description": "The file extension of your view files."
+        },
+        "filament-goto-view.projectSubFolder": {
+          "type": "string",
+          "default": "",
+          "description": "Specify a subfolder if your Laravel project is not in the workspace root (e.g., 'src' or 'api')."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.110.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "eslint": "^9.39.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}
