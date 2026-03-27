@@ -69,6 +69,19 @@ function isInsideViewAssignment(document, position) {
     return singleQuoteMatch || doubleQuoteMatch;
 }
 
+/**
+ * Returns the column index right after the opening quote in a $view = '...' assignment.
+ * This is used to set the replacement range so autocomplete replaces the entire typed text.
+ */
+function getViewStringStartColumn(lineText, cursorColumn) {
+    const textBeforeCursor = lineText.substring(0, cursorColumn);
+    const quoteMatch = textBeforeCursor.match(/\$view\s*=\s*(['"])/);
+
+    if (!quoteMatch) return cursorColumn;
+
+    return textBeforeCursor.lastIndexOf(quoteMatch[1], cursorColumn) + 1;
+}
+
 function activate(context) {
     const diagnosticCollection = vscode.languages.createDiagnosticCollection('filament-views');
 
@@ -142,12 +155,19 @@ function activate(context) {
             const viewsDir = path.join(workspaceFolder.uri.fsPath, subFolder, viewPathDir);
             const viewFiles = scanViewFiles(viewsDir, fileExt);
 
+            // Find the position right after the opening quote to set the replacement range
+            const lineText = document.lineAt(position.line).text;
+            const startCol = getViewStringStartColumn(lineText, position.character);
+            const replaceStart = new vscode.Position(position.line, startCol);
+            const replaceRange = new vscode.Range(replaceStart, position);
+
             return viewFiles.map((view) => {
                 const item = new vscode.CompletionItem(view.name, vscode.CompletionItemKind.File);
                 item.detail = view.relativePath;
                 item.insertText = view.name;
                 item.filterText = view.name;
                 item.sortText = view.name;
+                item.range = replaceRange;
                 return item;
             });
         }
@@ -170,4 +190,4 @@ function activate(context) {
 
 function deactivate() {}
 
-module.exports = { activate, deactivate };
+module.exports = { activate, deactivate, getViewFilePath, scanViewFiles, isInsideViewAssignment, getViewStringStartColumn };

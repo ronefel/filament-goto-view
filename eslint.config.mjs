@@ -1,6 +1,19 @@
 import globals from "globals";
 
-export default [{
+export default [
+    {
+        ignores: [
+            "node_modules/**",
+            ".vscode-test/**",
+            ".agent/**",
+            ".vscode/**",
+            "images/**",
+            "test/**",
+            "*.vsix",
+            "vsc-extension-quickstart.md"
+        ]
+    },
+    {
     files: ["**/*.js"],
     languageOptions: {
         globals: {
@@ -10,7 +23,7 @@ export default [{
         },
 
         ecmaVersion: 2022,
-        sourceType: "module",
+        sourceType: "commonjs",
     },
 
     rules: {

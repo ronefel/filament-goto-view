@@ -5,6 +5,12 @@ All notable changes to the **Filament Goto View** extension will be documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-03-27
+
+### Fixed
+- Autocomplete no longer duplicates the prefix when selecting a suggestion after typing a partial name (e.g., `filament.` + selecting `filament.pages.dashboard` no longer produces `filament.filament.pages.dashboard`).
+- Lowered minimum VS Code engine requirement from `1.110.0` to `1.107.0` for broader compatibility.
+
 ## [1.1.0] - 2026-03-27
 
 ### Added

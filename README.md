@@ -117,7 +117,7 @@ The extension scans PHP files for `$view = '...'` patterns and:
 
 ## 📋 Requirements
 
-- **VS Code** `1.110.0` or higher
+- **VS Code** `1.107.0` or higher
 - A **Laravel** project using **Filament PHP**
 
 ---
@@ -129,6 +129,11 @@ The extension scans PHP files for `$view = '...'` patterns and:
 ---
 
 ## 📝 Release Notes
+
+### 1.1.1
+
+- **Fix**: Autocomplete no longer duplicates the prefix when selecting after partial input
+- **Fix**: Lowered minimum VS Code version to `1.107.0`
 
 ### 1.1.0
 

@@ -1,8 +1,8 @@
 {
   "name": "filament-goto-view",
   "displayName": "Filament Goto View",
-  "description": "Navigate to Blade view files from $view property strings in Filament PHP projects with Ctrl+Click. Includes real-time validation for missing views.",
-  "version": "1.1.0",
+  "description": "Navigate to Blade view files from $view strings in Filament PHP with Ctrl+Click. Includes real-time validation for missing views and intelligent autocomplete for view names.",
+  "version": "1.1.1",
   "publisher": "Ronefel",
   "author": {
     "name": "Ronefel"
@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/ronefel/filament-goto-view#readme",
   "engines": {
-    "vscode": "^1.110.0"
+    "vscode": "^1.107.0"
   },
   "categories": [
     "Programming Languages",
@@ -66,13 +66,12 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "pretest": "npm run lint",
-    "test": "vscode-test",
+    "test": "npm run lint && vscode-test",
     "package": "vsce package",
     "publish": "vsce publish"
   },
   "devDependencies": {
-    "@types/vscode": "^1.110.0",
+    "@types/vscode": "^1.107.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
     "eslint": "^9.39.3",
