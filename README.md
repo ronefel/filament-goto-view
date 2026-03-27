@@ -26,6 +26,20 @@ protected static string $view = 'filament.pages.dashboard';
 
 The extension validates view paths in real-time. If a Blade file doesn't exist at the expected path, the view string is underlined in red with a clear error message — **no need to run your app to find broken views**.
 
+### 💡 Intelligent Autocomplete
+
+Get instant suggestions for all available Blade views while typing inside `$view = '...'`. The extension scans your `resources/views` directory and presents view names in **Laravel dot notation** — so you never have to remember exact paths.
+
+```php
+protected static string $view = '|';  // ← Start typing, get suggestions!
+//  filament.pages.dashboard
+//  filament.pages.settings
+//  filament.widgets.stats-overview
+//  ...
+```
+
+Triggers automatically on `'`, `"`, and `.` characters.
+
 ### ⚙️ Fully Configurable
 
 Works out of the box with standard Laravel projects, but easily adapts to custom setups:
@@ -115,6 +129,12 @@ The extension scans PHP files for `$view = '...'` patterns and:
 ---
 
 ## 📝 Release Notes
+
+### 1.1.0
+
+- **Intelligent Autocomplete**: Get suggestions for all available Blade views when typing inside `$view = '...'`
+- Scans `resources/views` directory recursively and presents names in Laravel dot notation
+- Triggers on `'`, `"`, and `.` characters
 
 ### 1.0.0
 

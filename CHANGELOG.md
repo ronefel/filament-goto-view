@@ -5,6 +5,13 @@ All notable changes to the **Filament Goto View** extension will be documented i
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-27
+
+### Added
+- **Intelligent Autocomplete**: Suggestions for all available Blade views when typing inside `$view = '...'`.
+- Recursive scan of the views directory, presenting names in Laravel dot notation.
+- Autocomplete triggers on `'`, `"`, and `.` characters.
+
 ## [1.0.0] - 2026-03-27
 
 ### Added

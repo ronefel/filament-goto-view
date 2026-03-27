@@ -2,7 +2,7 @@
   "name": "filament-goto-view",
   "displayName": "Filament Goto View",
   "description": "Navigate to Blade view files from $view property strings in Filament PHP projects with Ctrl+Click. Includes real-time validation for missing views.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "Ronefel",
   "author": {
     "name": "Ronefel"

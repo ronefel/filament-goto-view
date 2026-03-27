@@ -6,20 +6,16 @@ const fs = require('fs');
  * Helper function to convert 'dot.notation.view' into an actual file path
  */
 function getViewFilePath(document, viewName) {
-    // 1. Identify which workspace folder contains the current file
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
     if (!workspaceFolder) return null;
 
-    // 2. Read user configurations
     const config = vscode.workspace.getConfiguration('filament-goto-view');
     const viewPathDir = config.get('viewPath') || 'resources/views';
     const fileExt = config.get('extension') || '.blade.php';
     const subFolder = config.get('projectSubFolder') || '';
 
-    // 3. Convert Laravel dots to directory slashes (/)
     const fileName = viewName.replace(/\./g, '/') + fileExt;
 
-    // 4. Construct the final path
     return path.join(
         workspaceFolder.uri.fsPath,
         subFolder,
@@ -28,35 +24,72 @@ function getViewFilePath(document, viewName) {
     );
 }
 
+/**
+ * Recursively scan the views directory and return all view names in dot notation
+ */
+function scanViewFiles(viewsDir, fileExt, prefix = '') {
+    const views = [];
+
+    if (!fs.existsSync(viewsDir)) return views;
+
+    const entries = fs.readdirSync(viewsDir, { withFileTypes: true });
+
+    for (const entry of entries) {
+        const currentPrefix = prefix ? `${prefix}.${entry.name}` : entry.name;
+
+        if (entry.isDirectory()) {
+            views.push(...scanViewFiles(
+                path.join(viewsDir, entry.name),
+                fileExt,
+                currentPrefix
+            ));
+        } else if (entry.name.endsWith(fileExt)) {
+            const viewName = currentPrefix.slice(0, -fileExt.length);
+            views.push({
+                name: viewName,
+                relativePath: prefix ? `${prefix.replace(/\./g, '/')}/${entry.name}` : entry.name
+            });
+        }
+    }
+
+    return views;
+}
+
+/**
+ * Check if cursor is inside a $view = '...' string context
+ */
+function isInsideViewAssignment(document, position) {
+    const lineText = document.lineAt(position.line).text;
+    const textBeforeCursor = lineText.substring(0, position.character);
+
+    // Match: $view = '...<cursor> (single or double quotes, string not yet closed)
+    const singleQuoteMatch = /\$view\s*=\s*'[^']*$/.test(textBeforeCursor);
+    const doubleQuoteMatch = /\$view\s*=\s*"[^"]*$/.test(textBeforeCursor);
+
+    return singleQuoteMatch || doubleQuoteMatch;
+}
+
 function activate(context) {
     const diagnosticCollection = vscode.languages.createDiagnosticCollection('filament-views');
 
     // --- FEATURE 1: GOTO VIEW (DOCUMENT LINK) ---
-    // This provider controls exactly which text is clickable.
-    let linkProvider = vscode.languages.registerDocumentLinkProvider('php', {
+    const linkProvider = vscode.languages.registerDocumentLinkProvider('php', {
         provideDocumentLinks(document) {
             const text = document.getText();
             const links = [];
-            // Global regex to find all occurrences of $view = '...'
-            const regex = /\$view\s*=\s*['"]([^'"]+)['"]/g; 
+            const regex = /\$view\s*=\s*['"]([^'"]+)['"]/g;
             let match;
 
             while ((match = regex.exec(text)) !== null) {
-                const viewPath = match[1]; // e.g., filament.pages.biorressonancia
+                const viewPath = match[1];
                 const fullPath = getViewFilePath(document, viewPath);
 
                 if (fullPath && fs.existsSync(fullPath)) {
-                    // Find where the view name starts within the matched string
                     const viewNameIndex = match[0].indexOf(viewPath);
-                    
-                    // Calculate the exact start and end position of the view name
                     const startPos = document.positionAt(match.index + viewNameIndex);
                     const endPos = startPos.translate(0, viewPath.length);
-                    
-                    // Create the Range that encompasses the entire string
                     const range = new vscode.Range(startPos, endPos);
 
-                    // Create the link: (clickable range, destination URI)
                     links.push(new vscode.DocumentLink(range, vscode.Uri.file(fullPath)));
                 }
             }
@@ -78,7 +111,6 @@ function activate(context) {
             const fullPath = getViewFilePath(document, viewPath);
 
             if (!fullPath || !fs.existsSync(fullPath)) {
-                // Same logic to calculate Range to underline only the string
                 const viewNameIndex = match[0].indexOf(viewPath);
                 const startPos = document.positionAt(match.index + viewNameIndex);
                 const endPos = startPos.translate(0, viewPath.length);
@@ -94,11 +126,39 @@ function activate(context) {
         diagnosticCollection.set(document.uri, diagnostics);
     };
 
+    // --- FEATURE 3: AUTOCOMPLETE VIEW NAMES ---
+    const completionProvider = vscode.languages.registerCompletionItemProvider('php', {
+        provideCompletionItems(document, position) {
+            if (!isInsideViewAssignment(document, position)) return undefined;
+
+            const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+            if (!workspaceFolder) return undefined;
+
+            const config = vscode.workspace.getConfiguration('filament-goto-view');
+            const viewPathDir = config.get('viewPath') || 'resources/views';
+            const fileExt = config.get('extension') || '.blade.php';
+            const subFolder = config.get('projectSubFolder') || '';
+
+            const viewsDir = path.join(workspaceFolder.uri.fsPath, subFolder, viewPathDir);
+            const viewFiles = scanViewFiles(viewsDir, fileExt);
+
+            return viewFiles.map((view) => {
+                const item = new vscode.CompletionItem(view.name, vscode.CompletionItemKind.File);
+                item.detail = view.relativePath;
+                item.insertText = view.name;
+                item.filterText = view.name;
+                item.sortText = view.name;
+                return item;
+            });
+        }
+    }, "'", '"', '.');
+
     // Events to validate errors in real-time
     context.subscriptions.push(
         vscode.workspace.onDidChangeTextDocument(e => updateDiagnostics(e.document)),
         vscode.workspace.onDidOpenTextDocument(updateDiagnostics),
         linkProvider,
+        completionProvider,
         diagnosticCollection
     );
 
