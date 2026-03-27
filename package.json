@@ -3,7 +3,7 @@
   "displayName": "Filament Goto View",
   "description": "Shortcut to open Filament views and validate file paths directly from your PHP code.",
   "version": "0.0.1",
-  "publisher": "YourNameOrOrganization",
+  "publisher": "Ronefel",
   "engines": {
     "vscode": "^1.110.0"
   },
