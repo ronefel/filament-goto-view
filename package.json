@@ -1,9 +1,22 @@
 {
   "name": "filament-goto-view",
   "displayName": "Filament Goto View",
-  "description": "Shortcut to open Filament views and validate file paths directly from your PHP code.",
-  "version": "0.0.1",
+  "description": "Navigate to Blade view files from $view property strings in Filament PHP projects with Ctrl+Click. Includes real-time validation for missing views.",
+  "version": "1.0.0",
   "publisher": "Ronefel",
+  "author": {
+    "name": "Ronefel"
+  },
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ronefel/filament-goto-view"
+  },
+  "bugs": {
+    "url": "https://github.com/ronefel/filament-goto-view/issues"
+  },
+  "homepage": "https://github.com/ronefel/filament-goto-view#readme",
   "engines": {
     "vscode": "^1.110.0"
   },
@@ -14,10 +27,17 @@
   "keywords": [
     "laravel",
     "filament",
+    "filamentphp",
     "php",
     "blade",
-    "goto"
+    "goto",
+    "navigation",
+    "view"
   ],
+  "galleryBanner": {
+    "color": "#1a1a2e",
+    "theme": "dark"
+  },
   "activationEvents": [
     "onLanguage:php"
   ],
@@ -47,7 +67,9 @@
   "scripts": {
     "lint": "eslint .",
     "pretest": "npm run lint",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "package": "vsce package",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/vscode": "^1.110.0",

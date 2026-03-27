@@ -3,8 +3,13 @@
 test/**
 .gitignore
 .yarnrc
+.agent/**
+.git/**
+node_modules/**
 vsc-extension-quickstart.md
 **/jsconfig.json
 **/*.map
 **/eslint.config.mjs
 **/.vscode-test.*
+*.vsix
+.env

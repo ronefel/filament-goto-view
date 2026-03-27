@@ -1,65 +1,138 @@
-# filament-goto-view README
+# Filament Goto View
 
-This is the README for your extension "filament-goto-view". After writing up a brief description, we recommend including the following sections.
+> **Navigate from your PHP code directly to Blade view files in [Filament PHP](https://filamentphp.com/) projects — with a single click.**
 
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/Ronefel.filament-goto-view)
+![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/Ronefel.filament-goto-view)
+![License](https://img.shields.io/github/license/ronefel/filament-goto-view)
 
 ---
 
-## Working with Markdown
+## ✨ Features
 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+### 🔗 Click-to-Navigate
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
+`Ctrl+Click` (or `Cmd+Click` on macOS) on any `$view` property string to instantly open the corresponding Blade file.
 
-## For more information
+```php
+// Before: You manually search for the file...
+// After: Just Ctrl+Click on the string!
+protected static string $view = 'filament.pages.dashboard';
+//                                ^^^^^^^^^^^^^^^^^^^^^^^^
+//                                Click here → opens resources/views/filament/pages/dashboard.blade.php
+```
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+### 🔴 Real-Time View Validation
 
-**Enjoy!**
+The extension validates view paths in real-time. If a Blade file doesn't exist at the expected path, the view string is underlined in red with a clear error message — **no need to run your app to find broken views**.
+
+### ⚙️ Fully Configurable
+
+Works out of the box with standard Laravel projects, but easily adapts to custom setups:
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `filament-goto-view.viewPath` | `resources/views` | Relative path to your Laravel views folder |
+| `filament-goto-view.extension` | `.blade.php` | File extension of your view files |
+| `filament-goto-view.projectSubFolder` | `""` | Subfolder for your Laravel project (useful for monorepos) |
+
+---
+
+## 📦 Installation
+
+1. Open **VS Code**
+2. Go to the **Extensions** view (`Ctrl+Shift+X`)
+3. Search for **Filament Goto View**
+4. Click **Install**
+
+Or install via the command line:
+
+```bash
+code --install-extension Ronefel.filament-goto-view
+```
+
+---
+
+## 🚀 Usage
+
+1. Open any PHP file in your Filament project
+2. Find a line with `$view = 'some.view.path'`
+3. Hold `Ctrl` (or `Cmd` on macOS) and click on the view string
+4. The corresponding Blade file opens instantly
+
+If the view file doesn't exist, you'll see a red underline with an error diagnostic — helping you catch typos and missing files before they cause runtime errors.
+
+---
+
+## ⚙️ Configuration
+
+Open your VS Code settings (`Ctrl+,`) and search for "Filament Goto View" to customize the extension behavior.
+
+### Monorepo / Subfolder Setup
+
+If your Laravel project lives in a subdirectory (e.g., `backend/`), configure:
+
+```json
+{
+  "filament-goto-view.projectSubFolder": "backend"
+}
+```
+
+### Custom Views Directory
+
+If your views are located in a non-standard directory:
+
+```json
+{
+  "filament-goto-view.viewPath": "src/resources/views"
+}
+```
+
+---
+
+## 🧩 How It Works
+
+The extension scans PHP files for `$view = '...'` patterns and:
+
+1. **Converts** Laravel dot notation (e.g., `filament.pages.user`) to a file path (`filament/pages/user.blade.php`)
+2. **Resolves** the full path using the workspace root + configured settings
+3. **Creates clickable links** if the file exists
+4. **Reports diagnostics** if the file is missing
+
+---
+
+## 📋 Requirements
+
+- **VS Code** `1.110.0` or higher
+- A **Laravel** project using **Filament PHP**
+
+---
+
+## 🐛 Known Issues
+
+- The extension only detects `$view = '...'` patterns. Other Filament view references (like `view()` calls) are not yet supported.
+
+---
+
+## 📝 Release Notes
+
+### 1.0.0
+
+Initial release:
+
+- Click-to-navigate on `$view` property strings
+- Real-time diagnostics for missing Blade views
+- Configurable view path, file extension, and project subfolder
+- Laravel dot notation to file path conversion
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request on [GitHub](https://github.com/ronefel/filament-goto-view).
+
+---
+
+## 📄 License
+
+This extension is licensed under the [MIT License](LICENSE).
