@@ -40,6 +40,22 @@ protected static string $view = '|';  // ← Start typing, get suggestions!
 
 Triggers automatically on `'`, `"`, and `.` characters.
 
+### 🛠️ Quick Fix — Create Missing View
+
+When a view file doesn't exist, the extension not only shows an error — it offers a **Quick Fix** to create the file instantly. Just click the 💡 lightbulb (or press `Ctrl+.`) and select **"Create view '...'"**.
+
+The generated file includes a ready-to-use Filament page template:
+
+```blade
+<x-filament-panels::page>
+    {{-- Page content --}}
+</x-filament-panels::page>
+```
+
+- ✅ Creates all intermediate directories automatically
+- ✅ Opens the new file in the editor
+- ✅ Never overwrites existing files
+
 ### ⚙️ Fully Configurable
 
 Works out of the box with standard Laravel projects, but easily adapts to custom setups:
@@ -75,6 +91,8 @@ code --install-extension Ronefel.filament-goto-view
 4. The corresponding Blade file opens instantly
 
 If the view file doesn't exist, you'll see a red underline with an error diagnostic — helping you catch typos and missing files before they cause runtime errors.
+
+5. Click the 💡 lightbulb or press `Ctrl+.` on a missing view to **create the file instantly** with a default template
 
 ---
 
@@ -112,6 +130,7 @@ The extension scans PHP files for `$view = '...'` patterns and:
 2. **Resolves** the full path using the workspace root + configured settings
 3. **Creates clickable links** if the file exists
 4. **Reports diagnostics** if the file is missing
+5. **Offers a Quick Fix** to create the view file with a default Filament template
 
 ---
 
@@ -129,6 +148,10 @@ The extension scans PHP files for `$view = '...'` patterns and:
 ---
 
 ## 📝 Release Notes
+
+### 1.2.0
+
+- **Quick Fix — Create Missing View**: 💡 Code Action to instantly create a Blade view file with a `<x-filament-panels::page>` template when the referenced view doesn't exist
 
 ### 1.1.1
 

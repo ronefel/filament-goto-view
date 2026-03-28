@@ -2,11 +2,12 @@ const assert = require('assert');
 const path = require('path');
 const fs = require('fs');
 const vscode = require('vscode');
-const { scanViewFiles, isInsideViewAssignment } = require('../extension');
+const { scanViewFiles, isInsideViewAssignment, createViewFile, VIEW_TEMPLATE } = require('../extension');
 
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
 const VIEWS_DIR = path.join(FIXTURES_DIR, 'resources', 'views');
 const FILE_EXT = '.blade.php';
+const TEMP_DIR = path.join(FIXTURES_DIR, 'temp_views');
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
@@ -146,6 +147,56 @@ suite('Extension Test Suite', () => {
 			const line = "    $name = 'something";
 			const result = getViewStringStartColumn(line, line.length);
 			assert.strictEqual(result, line.length);
+		});
+	});
+
+	// --- Quick Fix: createViewFile ---
+	suite('createViewFile', () => {
+		teardown(() => {
+			if (fs.existsSync(TEMP_DIR)) {
+				fs.rmSync(TEMP_DIR, { recursive: true });
+			}
+		});
+
+		test('VIEW_TEMPLATE should contain correct Filament page structure', () => {
+			assert.ok(VIEW_TEMPLATE.includes('<x-filament-panels::page>'));
+			assert.ok(VIEW_TEMPLATE.includes('{{-- Page content --}}'));
+			assert.ok(VIEW_TEMPLATE.includes('</x-filament-panels::page>'));
+		});
+
+		test('VIEW_TEMPLATE should have correct line structure', () => {
+			const lines = VIEW_TEMPLATE.split('\n');
+			assert.strictEqual(lines[0], '<x-filament-panels::page>');
+			assert.strictEqual(lines[1], '    {{-- Page content --}}');
+			assert.strictEqual(lines[2], '</x-filament-panels::page>');
+			assert.strictEqual(lines[3], '');
+		});
+
+		test('should create file with correct template content', () => {
+			const filePath = path.join(TEMP_DIR, 'test-view.blade.php');
+			createViewFile(filePath);
+
+			assert.strictEqual(fs.existsSync(filePath), true);
+			const content = fs.readFileSync(filePath, 'utf-8');
+			assert.strictEqual(content, VIEW_TEMPLATE);
+		});
+
+		test('should create nested directories recursively', () => {
+			const filePath = path.join(TEMP_DIR, 'filament', 'pages', 'custom', 'deep-view.blade.php');
+			createViewFile(filePath);
+
+			assert.strictEqual(fs.existsSync(filePath), true);
+			assert.strictEqual(fs.existsSync(path.join(TEMP_DIR, 'filament', 'pages', 'custom')), true);
+		});
+
+		test('should create file in already existing directory', () => {
+			fs.mkdirSync(TEMP_DIR, { recursive: true });
+			const filePath = path.join(TEMP_DIR, 'simple.blade.php');
+			createViewFile(filePath);
+
+			assert.strictEqual(fs.existsSync(filePath), true);
+			const content = fs.readFileSync(filePath, 'utf-8');
+			assert.strictEqual(content, VIEW_TEMPLATE);
 		});
 	});
 

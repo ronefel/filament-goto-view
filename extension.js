@@ -2,6 +2,13 @@ const vscode = require('vscode');
 const path = require('path');
 const fs = require('fs');
 
+const VIEW_TEMPLATE = [
+    '<x-filament-panels::page>',
+    '    {{-- Page content --}}',
+    '</x-filament-panels::page>',
+    ''
+].join('\n');
+
 /**
  * Helper function to convert 'dot.notation.view' into an actual file path
  */
@@ -80,6 +87,15 @@ function getViewStringStartColumn(lineText, cursorColumn) {
     if (!quoteMatch) return cursorColumn;
 
     return textBeforeCursor.lastIndexOf(quoteMatch[1], cursorColumn) + 1;
+}
+
+/**
+ * Create a view file with the default Filament page template
+ */
+function createViewFile(filePath) {
+    const dir = path.dirname(filePath);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(filePath, VIEW_TEMPLATE);
 }
 
 function activate(context) {
@@ -173,12 +189,67 @@ function activate(context) {
         }
     }, "'", '"', '.');
 
+    // --- FEATURE 4: QUICK FIX TO CREATE MISSING VIEW ---
+    const codeActionProvider = vscode.languages.registerCodeActionsProvider('php', {
+        provideCodeActions(document, range, context) {
+            const actions = [];
+
+            for (const diagnostic of context.diagnostics) {
+                if (!diagnostic.message.startsWith('FilamentGotoView Error:')) continue;
+
+                const viewName = document.getText(diagnostic.range);
+                const fullPath = getViewFilePath(document, viewName);
+
+                if (!fullPath || fs.existsSync(fullPath)) continue;
+
+                const action = new vscode.CodeAction(
+                    `Create view '${viewName}'`,
+                    vscode.CodeActionKind.QuickFix
+                );
+                action.command = {
+                    command: 'filament-goto-view.createView',
+                    title: `Create view '${viewName}'`,
+                    arguments: [fullPath, document]
+                };
+                action.diagnostics = [diagnostic];
+                action.isPreferred = true;
+                actions.push(action);
+            }
+
+            return actions;
+        }
+    }, {
+        providedCodeActionKinds: [vscode.CodeActionKind.QuickFix]
+    });
+
+    const createViewCommand = vscode.commands.registerCommand(
+        'filament-goto-view.createView',
+        async (filePath, document) => {
+            if (!filePath) return;
+
+            if (fs.existsSync(filePath)) {
+                const existingDoc = await vscode.workspace.openTextDocument(filePath);
+                await vscode.window.showTextDocument(existingDoc);
+                return;
+            }
+
+            createViewFile(filePath);
+
+            const newDoc = await vscode.workspace.openTextDocument(filePath);
+            await vscode.window.showTextDocument(newDoc);
+
+            updateDiagnostics(document);
+        }
+    );
+
     // Events to validate errors in real-time
     context.subscriptions.push(
         vscode.workspace.onDidChangeTextDocument(e => updateDiagnostics(e.document)),
         vscode.workspace.onDidOpenTextDocument(updateDiagnostics),
         linkProvider,
         completionProvider,
+        codeActionProvider,
+        createViewCommand,
         diagnosticCollection
     );
 
@@ -190,4 +261,4 @@ function activate(context) {
 
 function deactivate() {}
 
-module.exports = { activate, deactivate, getViewFilePath, scanViewFiles, isInsideViewAssignment, getViewStringStartColumn };
+module.exports = { activate, deactivate, getViewFilePath, scanViewFiles, isInsideViewAssignment, getViewStringStartColumn, createViewFile, VIEW_TEMPLATE };
